@@ -8,3 +8,26 @@ tools](https://gist.github.com/samuell/6da9a7c1e03912fde62e).
 Note that there are a number of pre-existing community-made tool definitions in
 [this repository](https://github.com/common-workflow-language/workflows/tree/master/tools)
 that could most probably be re-used in this demo.
+
+## Tools included
+
+* `bwa index`
+* `bwa aln`
+* `bwa sampe`
+* `Picard/AddOrReplaceReadGroups.jar`
+* `Picard/BuildBamIndex.jar`
+* `Picard/MarkDuplicates.jar`
+* `GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator`
+* `GATK/GenomeAnalysisTK.jar -T IndelRealigner`
+* `GATK/GenomeAnalysisTK.jar -T CountCovariates`
+* `GATK/GenomeAnalysisTK.jar -T TableRecalibration`
+
+## Steps included
+
+1.  Create a BAM index
+2.  Mapping - Making Single Read Alignments for each of the reads in the paired end data
+3.  Merging Alignments and Making SAM Files
+4.  Creating a BAM File
+5.  Processing Reads with GATK
+6.  Variant Calling
+7.  Looking at Your Data with IGV
