@@ -1,0 +1,3 @@
+[submodule "cwl-workflows"]
+	path = cwl-workflows
+	url = ./cwl-workflows/
