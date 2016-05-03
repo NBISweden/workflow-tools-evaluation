@@ -11,15 +11,15 @@ that could most probably be re-used in this demo.
 
 ## Tools included
 
-* `bwa index`
 * `bwa aln`
+* `bwa index`
 * `bwa sampe`
 * `Picard/AddOrReplaceReadGroups.jar`
-* `Picard/BuildBamIndex.jar`
-* `Picard/MarkDuplicates.jar`
-* `GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator`
-* `GATK/GenomeAnalysisTK.jar -T IndelRealigner`
+* `Picard/BuildBamIndex.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-BuildBamIndex.cwl))
+* `Picard/MarkDuplicates.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-MarkDuplicates.cwl))
 * `GATK/GenomeAnalysisTK.jar -T CountCovariates`
+* `GATK/GenomeAnalysisTK.jar -T IndelRealigner` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/GATK-RealignTargetCreator.cwl))
+* `GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/GATK-RealignTargetCreator.cwl))
 * `GATK/GenomeAnalysisTK.jar -T TableRecalibration`
 
 ### How to install on Ubuntu
