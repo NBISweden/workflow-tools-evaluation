@@ -24,11 +24,20 @@ that could most probably be re-used in this demo.
 
 ### How to install on Ubuntu
 
+#### BWA
+
 ```bash
-sudo apt-get install bwa picard-tools
+sudo apt-get install bwa
 ```
 
-(GATK is a [different story](https://www.broadinstitute.org/gatk/download/) ...)
+#### Picard
+
+```bash
+sudo apt-get install picard-tools
+```
+
+#### GATK
+See [this page](https://www.broadinstitute.org/gatk/download/) for how to download.
 
 ## Steps included
 
