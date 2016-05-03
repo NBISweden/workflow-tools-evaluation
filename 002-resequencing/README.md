@@ -22,6 +22,14 @@ that could most probably be re-used in this demo.
 * `GATK/GenomeAnalysisTK.jar -T CountCovariates`
 * `GATK/GenomeAnalysisTK.jar -T TableRecalibration`
 
+### How to install on Ubuntu
+
+```bash
+sudo apt-get install bwa picard-tools
+```
+
+(GATK is a [different story](https://www.broadinstitute.org/gatk/download/) ...)
+
 ## Steps included
 
 1.  Create a BAM index
