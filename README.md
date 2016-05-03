@@ -9,4 +9,8 @@
   pip install cwl_runner
   ```
 
-Contact: Samuel Lampa - samuel.lampa -at- bils.se
+## External links
+
+* [CWL User Guide](http://www.commonwl.org/draft-3/UserGuide.html)
+
+Contact: Samuel Lampa - samuel.lampa # bils.se
