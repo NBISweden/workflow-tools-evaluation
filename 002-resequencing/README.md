@@ -43,4 +43,4 @@ sudo apt-get install bwa picard-tools
 ## Raw data needed:
 
 * [ALL.chr17.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/analysis_results/integrated_call_sets/ALL.chr17.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz)
-* [Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz](ftp://ftp.ensembl.org/pub/release-75//fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz)
+* [Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz](http://ftp.ensembl.org/pub/release-75//fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz)
