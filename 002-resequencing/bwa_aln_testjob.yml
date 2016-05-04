@@ -1,0 +1,7 @@
+reference_genome: 
+    class: File
+    path: Homo_sapiens.GRCh37.75.dna.chromosome.17.fa
+reads_file: 
+    class: File
+    path: NA06984.ILLUMINA.low_coverage.17q_1.fq
+output_filename: NA06984.ILLUMINA.low_coverage.17q_1.sai
