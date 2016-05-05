@@ -53,3 +53,4 @@ See [this page](https://www.broadinstitute.org/gatk/download/) for how to downlo
 
 * [ALL.chr17.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/analysis_results/integrated_call_sets/ALL.chr17.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz)
 * [Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz](http://ftp.ensembl.org/pub/release-75//fasta/homo_sapiens/dna/Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz)
+* [NA06984.ILLUMINA.low_coverage.17q_1.fq](http://bioinfo.perdanauniversity.edu.my/tein4ngs/ngspractice/NA06984.ILLUMINA.low_coverage.17q_1.fq)
