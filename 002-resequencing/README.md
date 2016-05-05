@@ -11,7 +11,7 @@ that could most probably be re-used in this demo.
 
 ## Tools included
 
-* `bwa aln`
+* `bwa aln` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/bwa-aln.cwl))
 * `bwa index`
 * `bwa sampe`
 * `Picard/AddOrReplaceReadGroups.jar`
