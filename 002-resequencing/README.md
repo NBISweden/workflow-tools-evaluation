@@ -12,7 +12,7 @@ that could most probably be re-used in this demo.
 ## Tools included
 
 * `bwa aln` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/bwa-aln.cwl))
-* `bwa index`
+* `bwa index` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/bwa-index.cwl))
 * `bwa sampe`
 * `Picard/AddOrReplaceReadGroups.jar`
 * `Picard/BuildBamIndex.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-BuildBamIndex.cwl))
