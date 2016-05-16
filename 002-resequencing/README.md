@@ -14,13 +14,14 @@ that could most probably be re-used in this demo.
 * `bwa aln` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/bwa-aln.cwl))
 * `bwa index` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/bwa-index.cwl))
 * `bwa sampe`
-* `Picard/AddOrReplaceReadGroups.jar`
-* `Picard/BuildBamIndex.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-BuildBamIndex.cwl))
-* `Picard/MarkDuplicates.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-MarkDuplicates.cwl))
 * `GATK/GenomeAnalysisTK.jar -T CountCovariates`
 * `GATK/GenomeAnalysisTK.jar -T IndelRealigner` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/GATK-RealignTargetCreator.cwl))
 * `GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/GATK-RealignTargetCreator.cwl))
 * `GATK/GenomeAnalysisTK.jar -T TableRecalibration`
+* `Picard/AddOrReplaceReadGroups.jar`
+* `Picard/BuildBamIndex.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-BuildBamIndex.cwl))
+* `Picard/MarkDuplicates.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-MarkDuplicates.cwl))
+*  samtools faidx ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/samtools-faidx.cwl))
 
 ### How to install on Ubuntu
 
