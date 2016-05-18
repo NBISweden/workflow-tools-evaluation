@@ -1,0 +1,4 @@
+ref: 
+  class: File
+  path: Homo_sapiens.GRCh37.75.dna.chromosome.17.fa
+bwa_index_algo: bwtsw
