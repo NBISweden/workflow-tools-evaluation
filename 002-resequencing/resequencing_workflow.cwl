@@ -7,7 +7,10 @@ inputs:
   - id: bwa_index_algo
     type: string
 
-outputs: []
+outputs:
+  - id: fasta_index
+    type: File
+    source: "#create_seq_dict/fasta_index"
 
 steps:
   - id: "create_index"
@@ -17,11 +20,13 @@ steps:
         source: "#ref"
       - id: "a"
         source: "#bwa_index_algo"
-    outputs: []
+    outputs:
+      - id: bwa_outputs
 
   - id: "create_seq_dict"
     run: tools/samtools-faidx.cwl
     inputs:
       - id: "input"
         source: "#ref"
-    outputs: []
+    outputs:
+      - id: fasta_index
