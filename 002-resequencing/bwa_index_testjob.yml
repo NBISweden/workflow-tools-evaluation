@@ -1,0 +1,5 @@
+#!/usr/bin/env cwl-runner
+cwl:tool: tools/bwa-index.cwl
+input: 
+    class: File
+    path: Homo_sapiens.GRCh37.75.dna.chromosome.17.fa
