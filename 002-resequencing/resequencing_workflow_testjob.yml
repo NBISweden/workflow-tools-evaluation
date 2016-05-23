@@ -1,4 +1,7 @@
 ref: 
   class: File
   path: Homo_sapiens.GRCh37.75.dna.chromosome.17.fa
+reads:
+  class: File
+  path: NA06984.ILLUMINA.low_coverage.17q_1.fq
 bwa_index_algo: bwtsw

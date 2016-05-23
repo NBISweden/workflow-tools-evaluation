@@ -4,6 +4,8 @@ class: Workflow
 inputs:
   - id: ref
     type: File
+  - id: reads
+    type: File
   - id: bwa_index_algo
     type: string
 
@@ -26,10 +28,21 @@ steps:
     outputs:
       - id: index
 
+  - id: "align_single_reads"
+    run: tools/bwa-aln.cwl
+    inputs:
+      - id: "prefix"
+        source: "#ref"
+      - id: "input"
+        source: "#reads"
+    outputs:
+      - id: output
+
 outputs:
   - id: bwa_outputs
-    type: { type: array, items: File }
-    source: "#create_index/output"
+    type: File
+    source: "#align_single_reads/output"
+#    type: { type: array, items: File }
   - id: fasta_index
     type: File
     source: "#create_seq_dict/index"
