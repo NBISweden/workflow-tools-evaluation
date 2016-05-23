@@ -18,10 +18,13 @@ that could most probably be re-used in this demo.
 * `GATK/GenomeAnalysisTK.jar -T IndelRealigner` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/GATK-RealignTargetCreator.cwl))
 * `GATK/GenomeAnalysisTK.jar -T RealignerTargetCreator` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/GATK-RealignTargetCreator.cwl))
 * `GATK/GenomeAnalysisTK.jar -T TableRecalibration`
+* `GATK/GenomeAnalysisTK.jar -T UnifiedGenotyper`
+* `GATK/GenomeAnalysisTK.jar -T VariantFiltration`
 * `Picard/AddOrReplaceReadGroups.jar`
 * `Picard/BuildBamIndex.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-BuildBamIndex.cwl))
 * `Picard/MarkDuplicates.jar` ([CWL Tool](https://github.com/BILS/workflows/blob/master/tools/picard-MarkDuplicates.cwl))
-*  samtools faidx ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/samtools-faidx.cwl))
+* `Picard/MergeSamFiles.jar`
+* `samtools faidx` ([CWL Tool](https://github.com/common-workflow-language/workflows/blob/master/tools/samtools-faidx.cwl))
 
 ### How to install on Ubuntu
 
