@@ -8,6 +8,8 @@ inputs:
     type: File
   - id: bwa_index_algo
     type: string
+  - id: single_reads_alignment_outfile
+    type: string
 
 steps:
   - id: "create_index"
@@ -35,6 +37,8 @@ steps:
         source: "#ref"
       - id: "input"
         source: "#reads"
+      - id: "output_filename"
+        source: "#single_reads_alignment_outfile"
     outputs:
       - id: output
 
