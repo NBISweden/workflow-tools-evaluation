@@ -37,6 +37,23 @@ sudo apt-get install bwa
 sudo apt-get install picard-tools
 ```
 
+#### Toil
+
+Install the version of CWLTool that Toil depends on:
+```bash
+pip uninstall cwltool
+pip install cwltool==1.0.20160425140546
+```
+
+Install toil:
+```
+git clone https://github.com/BD2KGenomics/toil.git
+cd toil
+pip install .
+```
+
+(Then, use the `cwltoil` tool, as a replacement for `cwl-runner` or `cwltool`)
+
 #### GATK
 See [this page](https://www.broadinstitute.org/gatk/download/) for how to download.
 
