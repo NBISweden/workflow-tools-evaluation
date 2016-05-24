@@ -17,14 +17,21 @@ rule gunzip_ref_genome:
     shell:
         "gunzip Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz"
 
-rule download_fastq:
+rule download_fastq1:
     output:
         "NA06984.ILLUMINA.low_coverage.17q_1.fq"
     shell:
         "wget http://bioinfo.perdanauniversity.edu.my/tein4ngs/ngspractice/NA06984.ILLUMINA.low_coverage.17q_1.fq"
 
+rule download_fastq2:
+    output:
+        "NA06984.ILLUMINA.low_coverage.17q_2.fq"
+    shell:
+        "wget http://bioinfo.perdanauniversity.edu.my/tein4ngs/ngspractice/NA06984.ILLUMINA.low_coverage.17q_2.fq"
+
 rule all:
     input:
         "ALL.chr17.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz",
         "Homo_sapiens.GRCh37.75.dna.chromosome.17.fa",
-        "NA06984.ILLUMINA.low_coverage.17q_1.fq"
+        "NA06984.ILLUMINA.low_coverage.17q_1.fq",
+        "NA06984.ILLUMINA.low_coverage.17q_2.fq"
