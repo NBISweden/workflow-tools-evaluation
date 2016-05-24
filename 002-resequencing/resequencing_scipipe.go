@@ -18,13 +18,13 @@ func main() {
 	// --------------------------------------------------------------------------------
 	// Initialize pipeline runner
 	// --------------------------------------------------------------------------------
-	pipe := scipipe.NewPipelineRunner()
+	pipeRunner := scipipe.NewPipelineRunner()
 
 	// --------------------------------------------------------------------------------
 	// Generator for the two reads
 	// --------------------------------------------------------------------------------
 	pairsGen := scipipe.NewStringGenerator("1", "2")
-	pipe.AddProcess(pairsGen)
+	pipeRunner.AddProcess(pairsGen)
 
 	// --------------------------------------------------------------------------------
 	// Download Reference Genome
@@ -43,7 +43,7 @@ func main() {
 		dlGzipped.ParamPorts["url"] <- vcf_base_url + vcf_file
 		dlGzipped.ParamPorts["outfile"] <- vcf_file
 	}()
-	pipe.AddProcess(dlGzipped)
+	pipeRunner.AddProcess(dlGzipped)
 
 	// --------------------------------------------------------------------------------
 	// Unzip ref file
@@ -51,7 +51,7 @@ func main() {
 	gunzip := scipipe.Shell("gunzip", "gunzip -c {i:in} > {o:out}")
 	gunzip.SetPathFormatReplace("in", "out", ".gz", "")
 	gunzip.InPorts["in"] = dlGzipped.OutPorts["downloaded"]
-	pipe.AddProcess(gunzip)
+	pipeRunner.AddProcess(gunzip)
 
 	// --------------------------------------------------------------------------------
 	// Download FastQ component
@@ -60,13 +60,13 @@ func main() {
 	dlFastq.PathFormatters["fastq"] = func(t *scipipe.SciTask) string {
 		return fmt.Sprintf(fastq_file, t.Params["pair"])
 	}
-	pipe.AddProcess(dlFastq)
+	pipeRunner.AddProcess(dlFastq)
 
 	// --------------------------------------------------------------------------------
 	// Sink component
 	// --------------------------------------------------------------------------------
 	sink := scipipe.NewSink()
-	pipe.AddProcess(sink)
+	pipeRunner.AddProcess(sink)
 
 	// --------------------------------------------------------------------------------
 	// Specify data flow
@@ -79,5 +79,5 @@ func main() {
 	// --------------------------------------------------------------------------------
 	// Run pipeline
 	// --------------------------------------------------------------------------------
-	pipe.Run()
+	pipeRunner.Run()
 }
