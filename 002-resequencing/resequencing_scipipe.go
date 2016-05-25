@@ -57,7 +57,7 @@ func main() {
 		"bwa index -a bwtsw {i:index}; echo done > {o:done}")
 	idxRef.SetPathFormatExtend("index", "done", ".indexed")
 	pipeRun.AddProcess(idxRef)
-	refFanOut.OutPorts["index_ref"] = idxRef.InPorts["index"]
+	idxRef.InPorts["index"] = refFanOut.GetOutPort("index_ref")
 
 	idxRefDoneFanOut := sp.NewFanOut()
 	pipeRun.AddProcess(idxRefDoneFanOut)
@@ -78,8 +78,9 @@ func main() {
 			pipeRun.AddProcess(dlFastq)
 			dlFastq.SetPathFormatStatic("fastq", file_name)
 			fastQFanOut := sp.NewFanOut()
+			pipeRun.AddProcess(fastQFanOut)
 			fastQFanOut.InFile = dlFastq.OutPorts["fastq"]
-			fastQFanOut.OutPorts["merg"] = outPorts[individual][sample]["fastq"]
+			outPorts[individual][sample]["fastq"] = fastQFanOut.GetOutPort("merg")
 
 			// --------------------------------------------------------------------------------
 			// BWA Align
@@ -88,10 +89,10 @@ func main() {
 				"bwa aln {i:ref} {i:fastq} > {o:sai} # {i:index_done}")
 			pipeRun.AddProcess(bwaAln)
 			bwaAln.SetPathFormatExtend("fastq", "sai", ".sai")
-			refFanOut.OutPorts["bwa_aln_"+individual+"_"+sample] = bwaAln.InPorts["ref"]
-			idxRefDoneFanOut.OutPorts["bwa_aln_"+individual+"_"+sample] = bwaAln.InPorts["index_done"]
-			fastQFanOut.OutPorts["bwa_aln"] = bwaAln.InPorts["fastq"]
-
+			// Connect
+			bwaAln.InPorts["ref"] = refFanOut.GetOutPort("bwa_aln_" + individual + "_" + sample)
+			bwaAln.InPorts["index_done"] = idxRefDoneFanOut.GetOutPort("bwa_aln_" + individual + "_" + sample)
+			bwaAln.InPorts["fastq"] = fastQFanOut.GetOutPort("bwa_aln")
 			// Store in map
 			outPorts[individual][sample]["sai"] = bwaAln.OutPorts["sai"]
 		}
@@ -99,18 +100,22 @@ func main() {
 		// --------------------------------------------------------------------------------
 		// Merge
 		// --------------------------------------------------------------------------------
-		merg := sp.Shell("merge",
-			"bwa sampe {i:ref} {i:sai1} {i:sai2} {i:fq1} {i:fq2} > {o:merged}")
+		individualParamGen := sp.NewStringGenerator(individual)
+		pipeRun.AddProcess(individualParamGen)
+
+		merg := sp.Shell("merge_"+individual,
+			"bwa sampe {i:ref} {i:sai1} {i:sai2} {i:fq1} {i:fq2} > {o:merged} # {p:individual}")
 		pipeRun.AddProcess(merg)
 		merg.PathFormatters["merged"] = func(t *sp.SciTask) string {
-			return fmt.Sprintf("%s.merged.sam", individual)
+			return fmt.Sprintf("%s.merged.sam", t.Params["individual"])
 		}
-		refFanOut.OutPorts["merg_"+individual] = merg.InPorts["ref"]
-		idxRefDoneFanOut.OutPorts["merg_"+individual] = merg.InPorts["index_done"]
+		merg.InPorts["ref"] = refFanOut.GetOutPort("merg_" + individual)
+		merg.InPorts["index_done"] = idxRefDoneFanOut.GetOutPort("merg_" + individual)
 		merg.InPorts["sai1"] = outPorts[individual]["1"]["sai"]
 		merg.InPorts["sai2"] = outPorts[individual]["2"]["sai"]
-		merg.InPorts["fastq1"] = outPorts[individual]["1"]["fastq"]
-		merg.InPorts["fastq2"] = outPorts[individual]["2"]["fastq"]
+		merg.InPorts["fq1"] = outPorts[individual]["1"]["fastq"]
+		merg.InPorts["fq2"] = outPorts[individual]["2"]["fastq"]
+		merg.ParamPorts["individual"] = individualParamGen.Out
 
 		sink.InPorts[individual] = merg.OutPorts["merged"]
 	}
