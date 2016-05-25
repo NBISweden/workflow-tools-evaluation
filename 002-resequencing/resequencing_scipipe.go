@@ -30,6 +30,7 @@ func main() {
 	// Download Reference Genome
 	// --------------------------------------------------------------------------------
 	dlGzipped := scipipe.Shell("dl_gzipped", "wget -O {o:downloaded} {p:url} # {p:outfile}")
+	pipeRunner.AddProcess(dlGzipped)
 	// Path format
 	dlGzipped.PathFormatters["downloaded"] = func(t *scipipe.SciTask) string {
 		return t.Params["outfile"]
@@ -44,38 +45,37 @@ func main() {
 		dlGzipped.ParamPorts["url"] <- vcf_base_url + vcf_file
 		dlGzipped.ParamPorts["outfile"] <- vcf_file
 	}()
-	pipeRunner.AddProcess(dlGzipped)
 
 	// --------------------------------------------------------------------------------
 	// Unzip ref file
 	// --------------------------------------------------------------------------------
 	gunzip := scipipe.Shell("gunzip", "gunzip -c {i:in} > {o:out}")
+	pipeRunner.AddProcess(gunzip)
 	// Path format
 	gunzip.SetPathFormatReplace("in", "out", ".gz", "")
 	// Data flow
 	gunzip.InPorts["in"] = dlGzipped.OutPorts["downloaded"]
-	pipeRunner.AddProcess(gunzip)
 
 	// --------------------------------------------------------------------------------
 	// Download FastQ component
 	// --------------------------------------------------------------------------------
 	dlFastq := scipipe.Shell("dl_fastq", "wget -O {o:fastq} "+fastq_base_url+fmt.Sprintf(fastq_file, "{p:pair}"))
+	pipeRunner.AddProcess(dlFastq)
 	// Path format
 	dlFastq.PathFormatters["fastq"] = func(t *scipipe.SciTask) string {
 		return fmt.Sprintf(fastq_file, t.Params["pair"])
 	}
 	// Data flow
 	dlFastq.ParamPorts["pair"] = pairsGen.Out
-	pipeRunner.AddProcess(dlFastq)
 
 	// --------------------------------------------------------------------------------
 	// Sink component
 	// --------------------------------------------------------------------------------
 	sink := scipipe.NewSink()
+	pipeRunner.AddProcess(sink)
 	// Data flow
 	sink.InPorts["fastq"] = dlFastq.OutPorts["fastq"]
 	sink.InPorts["gunzip"] = gunzip.OutPorts["out"]
-	pipeRunner.AddProcess(sink)
 
 	// --------------------------------------------------------------------------------
 	// Run pipeline
