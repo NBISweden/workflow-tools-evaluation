@@ -9,7 +9,8 @@ const (
 	fastq_base_url = "http://bioinfo.perdanauniversity.edu.my/tein4ngs/ngspractice/"
 	fastq_file     = "NA06984.ILLUMINA.low_coverage.17q_%s.fq"
 	ref_base_url   = "http://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/"
-	ref_file       = "Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz"
+	ref_file       = "Homo_sapiens.GRCh37.75.dna.chromosome.17.fa"
+	ref_file_gz    = "Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz"
 	vcf_base_url   = "http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase1/analysis_results/integrated_call_sets/"
 	vcf_file       = "ALL.chr17.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz"
 )
@@ -40,8 +41,8 @@ func main() {
 		defer close(dlGzipped.ParamPorts["url"])
 		defer close(dlGzipped.ParamPorts["outfile"])
 
-		dlGzipped.ParamPorts["url"] <- ref_base_url + ref_file
-		dlGzipped.ParamPorts["outfile"] <- ref_file
+		dlGzipped.ParamPorts["url"] <- ref_base_url + ref_file_gz
+		dlGzipped.ParamPorts["outfile"] <- ref_file_gz
 		dlGzipped.ParamPorts["url"] <- vcf_base_url + vcf_file
 		dlGzipped.ParamPorts["outfile"] <- vcf_file
 	}()
@@ -69,12 +70,21 @@ func main() {
 	dlFastq.ParamPorts["pair"] = pairsGen.Out
 
 	// --------------------------------------------------------------------------------
+	// BWA Align
+	// --------------------------------------------------------------------------------
+	bwaAln := scipipe.Shell("bwa_aln", fmt.Sprintf("bwa aln %s {i:fastq} > {o:sai}", ref_file))
+	pipeRunner.AddProcess(bwaAln)
+	// Path format
+	bwaAln.SetPathFormatExtend("fastq", "sai", ".sai")
+	bwaAln.InPorts["fastq"] = dlFastq.OutPorts["fastq"]
+
+	// --------------------------------------------------------------------------------
 	// Sink component
 	// --------------------------------------------------------------------------------
 	sink := scipipe.NewSink()
 	pipeRunner.AddProcess(sink)
 	// Data flow
-	sink.InPorts["fastq"] = dlFastq.OutPorts["fastq"]
+	sink.InPorts["sai"] = bwaAln.OutPorts["sai"]
 	sink.InPorts["gunzip"] = gunzip.OutPorts["out"]
 
 	// --------------------------------------------------------------------------------
