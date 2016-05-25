@@ -2,12 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/scipipe/scipipe"
+	sp "github.com/scipipe/scipipe"
 )
 
 const (
 	fastq_base_url = "http://bioinfo.perdanauniversity.edu.my/tein4ngs/ngspractice/"
-	fastq_file     = "NA06984.ILLUMINA.low_coverage.17q_%s.fq"
+	fastq_file     = "%s.ILLUMINA.low_coverage.4p_%s.fq"
 	ref_base_url   = "http://ftp.ensembl.org/pub/release-75/fasta/homo_sapiens/dna/"
 	ref_file       = "Homo_sapiens.GRCh37.75.dna.chromosome.17.fa"
 	ref_file_gz    = "Homo_sapiens.GRCh37.75.dna.chromosome.17.fa.gz"
@@ -15,80 +15,108 @@ const (
 	vcf_file       = "ALL.chr17.integrated_phase1_v3.20101123.snps_indels_svs.genotypes.vcf.gz"
 )
 
+var (
+	individuals = []string{"NA06984", "NA12489"}
+	samples     = []string{"1", "2"}
+)
+
 func main() {
+	//sp.InitLogDebug()
+	gunzipCmdPat := "gunzip -c {i:in} > {o:out}"
+
 	// --------------------------------------------------------------------------------
 	// Initialize pipeline runner
 	// --------------------------------------------------------------------------------
-	pipeRunner := scipipe.NewPipelineRunner()
-
-	// --------------------------------------------------------------------------------
-	// Generator for the two reads
-	// --------------------------------------------------------------------------------
-	pairsGen := scipipe.NewStringGenerator("1", "2")
-	pipeRunner.AddProcess(pairsGen)
+	pipeRun := sp.NewPipelineRunner()
+	sink := sp.NewSink()
 
 	// --------------------------------------------------------------------------------
 	// Download Reference Genome
 	// --------------------------------------------------------------------------------
-	dlGzipped := scipipe.Shell("dl_gzipped", "wget -O {o:downloaded} {p:url} # {p:outfile}")
-	pipeRunner.AddProcess(dlGzipped)
-	// Path format
-	dlGzipped.PathFormatters["downloaded"] = func(t *scipipe.SciTask) string {
-		return t.Params["outfile"]
-	}
-	// Feed the download gzipped component with parameters
-	go func() {
-		defer close(dlGzipped.ParamPorts["url"])
-		defer close(dlGzipped.ParamPorts["outfile"])
-
-		dlGzipped.ParamPorts["url"] <- ref_base_url + ref_file_gz
-		dlGzipped.ParamPorts["outfile"] <- ref_file_gz
-		dlGzipped.ParamPorts["url"] <- vcf_base_url + vcf_file
-		dlGzipped.ParamPorts["outfile"] <- vcf_file
-	}()
+	dlRefGz := sp.Shell("dl_gzipped",
+		"wget -O {o:outfile} "+ref_base_url+ref_file_gz)
+	pipeRun.AddProcess(dlRefGz)
+	dlRefGz.SetPathFormatStatic("outfile", ref_file_gz)
 
 	// --------------------------------------------------------------------------------
 	// Unzip ref file
 	// --------------------------------------------------------------------------------
-	gunzip := scipipe.Shell("gunzip", "gunzip -c {i:in} > {o:out}")
-	pipeRunner.AddProcess(gunzip)
-	// Path format
-	gunzip.SetPathFormatReplace("in", "out", ".gz", "")
-	// Data flow
-	gunzip.InPorts["in"] = dlGzipped.OutPorts["downloaded"]
+	gunzipRef := sp.Shell("gunzipRef", gunzipCmdPat)
+	pipeRun.AddProcess(gunzipRef)
+	gunzipRef.SetPathFormatReplace("in", "out", ".gz", "")
+	gunzipRef.InPorts["in"] = dlRefGz.OutPorts["outfile"]
+
+	refFanOut := sp.NewFanOut()
+	pipeRun.AddProcess(refFanOut)
+	refFanOut.InFile = gunzipRef.OutPorts["out"]
 
 	// --------------------------------------------------------------------------------
-	// Download FastQ component
+	// Index Reference Genome
 	// --------------------------------------------------------------------------------
-	dlFastq := scipipe.Shell("dl_fastq", "wget -O {o:fastq} "+fastq_base_url+fmt.Sprintf(fastq_file, "{p:pair}"))
-	pipeRunner.AddProcess(dlFastq)
-	// Path format
-	dlFastq.PathFormatters["fastq"] = func(t *scipipe.SciTask) string {
-		return fmt.Sprintf(fastq_file, t.Params["pair"])
+	idxRef := sp.Shell("Index Ref",
+		"bwa index -a bwtsw {i:index}; echo done > {o:done}")
+	idxRef.SetPathFormatExtend("index", "done", ".indexed")
+	pipeRun.AddProcess(idxRef)
+	refFanOut.OutPorts["index_ref"] = idxRef.InPorts["index"]
+
+	idxRefDoneFanOut := sp.NewFanOut()
+	pipeRun.AddProcess(idxRefDoneFanOut)
+	idxRefDoneFanOut.InFile = idxRef.OutPorts["done"]
+
+	outPorts := make(map[string]map[string]map[string]chan *sp.FileTarget)
+	for _, individual := range individuals {
+		outPorts[individual] = make(map[string]map[string]chan *sp.FileTarget)
+		for _, sample := range samples {
+			outPorts[individual][sample] = make(map[string]chan *sp.FileTarget)
+
+			// --------------------------------------------------------------------------------
+			// Download FastQ component
+			// --------------------------------------------------------------------------------
+			file_name := fmt.Sprintf(fastq_file, individual, sample)
+			dlFastq := sp.Shell("dl_fastq",
+				"wget -O {o:fastq} "+fastq_base_url+file_name)
+			pipeRun.AddProcess(dlFastq)
+			dlFastq.SetPathFormatStatic("fastq", file_name)
+			fastQFanOut := sp.NewFanOut()
+			fastQFanOut.InFile = dlFastq.OutPorts["fastq"]
+			fastQFanOut.OutPorts["merg"] = outPorts[individual][sample]["fastq"]
+
+			// --------------------------------------------------------------------------------
+			// BWA Align
+			// --------------------------------------------------------------------------------
+			bwaAln := sp.Shell("bwa_aln",
+				"bwa aln {i:ref} {i:fastq} > {o:sai} # {i:index_done}")
+			pipeRun.AddProcess(bwaAln)
+			bwaAln.SetPathFormatExtend("fastq", "sai", ".sai")
+			refFanOut.OutPorts["bwa_aln_"+individual+"_"+sample] = bwaAln.InPorts["ref"]
+			idxRefDoneFanOut.OutPorts["bwa_aln_"+individual+"_"+sample] = bwaAln.InPorts["index_done"]
+			fastQFanOut.OutPorts["bwa_aln"] = bwaAln.InPorts["fastq"]
+
+			// Store in map
+			outPorts[individual][sample]["sai"] = bwaAln.OutPorts["sai"]
+		}
+
+		// --------------------------------------------------------------------------------
+		// Merge
+		// --------------------------------------------------------------------------------
+		merg := sp.Shell("merge",
+			"bwa sampe {i:ref} {i:sai1} {i:sai2} {i:fq1} {i:fq2} > {o:merged}")
+		pipeRun.AddProcess(merg)
+		merg.PathFormatters["merged"] = func(t *sp.SciTask) string {
+			return fmt.Sprintf("%s.merged.sam", individual)
+		}
+		refFanOut.OutPorts["merg_"+individual] = merg.InPorts["ref"]
+		idxRefDoneFanOut.OutPorts["merg_"+individual] = merg.InPorts["index_done"]
+		merg.InPorts["sai1"] = outPorts[individual]["1"]["sai"]
+		merg.InPorts["sai2"] = outPorts[individual]["2"]["sai"]
+		merg.InPorts["fastq1"] = outPorts[individual]["1"]["fastq"]
+		merg.InPorts["fastq2"] = outPorts[individual]["2"]["fastq"]
+
+		sink.InPorts[individual] = merg.OutPorts["merged"]
 	}
-	// Data flow
-	dlFastq.ParamPorts["pair"] = pairsGen.Out
-
-	// --------------------------------------------------------------------------------
-	// BWA Align
-	// --------------------------------------------------------------------------------
-	bwaAln := scipipe.Shell("bwa_aln", fmt.Sprintf("bwa aln %s {i:fastq} > {o:sai}", ref_file))
-	pipeRunner.AddProcess(bwaAln)
-	// Path format
-	bwaAln.SetPathFormatExtend("fastq", "sai", ".sai")
-	bwaAln.InPorts["fastq"] = dlFastq.OutPorts["fastq"]
-
-	// --------------------------------------------------------------------------------
-	// Sink component
-	// --------------------------------------------------------------------------------
-	sink := scipipe.NewSink()
-	pipeRunner.AddProcess(sink)
-	// Data flow
-	sink.InPorts["sai"] = bwaAln.OutPorts["sai"]
-	sink.InPorts["gunzip"] = gunzip.OutPorts["out"]
-
 	// --------------------------------------------------------------------------------
 	// Run pipeline
 	// --------------------------------------------------------------------------------
-	pipeRunner.Run()
+	pipeRun.AddProcess(sink)
+	pipeRun.Run()
 }
