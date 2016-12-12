@@ -32,6 +32,6 @@
 
 ## External links
 
-* [CWL User Guide](http://www.commonwl.org/draft-3/UserGuide.html)
+* [CWL User Guide](http://www.commonwl.org/v1.0/UserGuide.html)
 
 Contact: Samuel Lampa - samuel.lampa # bils.se
